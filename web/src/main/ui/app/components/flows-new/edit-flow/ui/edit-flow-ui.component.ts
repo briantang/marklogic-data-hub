@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, ViewChild, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material';
 import { NewStepDialogComponent } from './new-step-dialog.component';
@@ -8,6 +8,8 @@ import { FlowSettingsDialogComponent } from '../../manage-flows/ui/flow-settings
 import { Flow } from '../../models/flow.model';
 import { Step } from '../../models/step.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {MappingComponent} from "../mapping/mapping.component";
+
 
 @Component({
   selector: 'app-edit-flow-ui',
@@ -37,6 +39,8 @@ export class EditFlowUiComponent implements OnChanges {
   @Output() stepUpdate = new EventEmitter();
   @Output() stepDelete = new EventEmitter();
 
+
+  @ViewChild(MappingComponent) mappingStep: MappingComponent;
 
   constructor(
     public dialog: MatDialog,
@@ -116,6 +120,30 @@ export class EditFlowUiComponent implements OnChanges {
       }
     });
   }
+
+  editStepDialog(step: Step): void{
+    const dialogRef = this.dialog.open(NewStepDialogComponent, {
+      width: '600px',
+      data: {
+        title: 'Edit Step',
+        databases: this.databases,
+        collections: this.collections,
+        entities: this.entities,
+        step: step,
+        flow: this.flow,
+        isUpdate: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response) {
+        if (this.mappingStep)
+          this.mappingStep.stepEdited(response);
+        this.updateStep(response);
+      }
+    });
+  }
+
   openFlowSettingsDialog(): void {
     const dialogRef = this.dialog.open(FlowSettingsDialogComponent, {
       width: '500px',
