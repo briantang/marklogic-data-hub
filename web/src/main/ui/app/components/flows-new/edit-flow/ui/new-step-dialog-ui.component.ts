@@ -24,6 +24,7 @@ export class NewStepDialogUiComponent implements OnInit {
   @Input() flow: Flow;
   @Input() projectDirectory: string;
   @Input() isUpdate: boolean;
+  @Input() isImport: boolean;
   @Output() getCollections = new EventEmitter();
   @Output() cancelClicked = new EventEmitter();
   @Output() saveClicked = new EventEmitter();
@@ -63,6 +64,7 @@ export class NewStepDialogUiComponent implements OnInit {
   entityRequired: boolean = false;
   hasSelectedCollection: boolean = false;
   hasSelectedQuery: boolean = false;
+  importBool: boolean = false;
   tooltips: any;
 
   constructor(
@@ -90,7 +92,7 @@ export class NewStepDialogUiComponent implements OnInit {
       name: [this.step ? this.step.name : '', [
         Validators.required,
         Validators.pattern('[a-zA-Z][a-zA-Z0-9\_\-]*'),
-        ExistingStepNameValidator.forbiddenName(this.flow, this.step && this.step.name)
+        ExistingStepNameValidator.forbiddenName(this.flow, this.step && this.step.name, this.isImport)
       ]],
       stepDefinitionType: [this.step ? this.step.stepDefinitionType : '', Validators.required],
       description: [(this.step && this.step.description) ? this.step.description : ''],
@@ -109,12 +111,37 @@ export class NewStepDialogUiComponent implements OnInit {
     if (this.step && this.step.options && this.step.options.sourceDatabase)
       this.getCollections.emit(this.step.options.sourceDatabase);
 
+  
+    if(this.isImport){
+      if(this.step.stepDefinitionType === StepType.MASTERING || this.step.stepDefinitionType === StepType.MAPPING)
+      {
+        for(var i = 0; i < this.flow.steps.length; i++)
+        {
+          //if the imported step's source collection is in the flow, allow them to Save
+          if(this.flow.steps[i].name === this.newStepForm.value.sourceCollection)
+          {
+            this.importBool = false;
+            return;
+          }
+          //otherwise, disable save button until they select a source collection
+          this.importBool = true;
+        }
+      }
+    }
     // Disable Type select and Name when editing a step
     if (this.isUpdate) {
       const type = this.newStepForm.getRawValue().stepDefinitionType;
       this.setType(type);
       this.newStepForm.controls['stepDefinitionType'].disable();
-      this.newStepForm.controls['name'].disable();
+
+      if(this.isImport){
+        if(this.step.stepDefinitionType === StepType.MASTERING || this.step.stepDefinitionType === StepType.MAPPING)
+        {
+        }
+      }
+      else{
+        this.newStepForm.controls['name'].disable();
+      }
 
       // Removing Target entity when editing
 
@@ -144,6 +171,11 @@ export class NewStepDialogUiComponent implements OnInit {
   }
   onNoClick(): void {
     this.cancelClicked.emit();
+  }
+  collectionSelected(){
+    if(this.isImport){
+      this.importBool = false;
+    }
   }
   stepSourceChange(event: any) {
     this.hasSelectedCollection = event.value === 'collection';
