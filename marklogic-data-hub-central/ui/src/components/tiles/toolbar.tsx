@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import styles from './toolbar.module.scss';
 import './toolbar.scss';
+import { MLTooltip } from '@marklogic/design-system';
+
 
 interface Props {
     tiles: any;
@@ -47,19 +49,19 @@ const Toolbar: React.FC<Props>  = (props) => {
             {Object.keys(tiles).map((id, i) => {
                 if (tiles[id]['iconType'] === 'custom') {
                     return (
-                        <Tooltip title={getTooltip(id)} placement="left" key={i}>
+                        <MLTooltip title={getTooltip(id)} placement="left" key={i}>
                             <div className={tiles[id]['icon']} aria-label={'tool-' + id} style={getIconStyle(id)} 
                             onClick={(e) => onClick(e,id)}></div>
-                        </Tooltip>
+                        </MLTooltip>
                     )
                 } else {
                     return (
-                        <Tooltip title={getTooltip(id)} placement="left" key={i}>
+                        <MLTooltip title={getTooltip(id)} placement="left" key={i}>
                             <i className={styles.tool} aria-label={'tool-' + id} style={getIconStyle(id)}
                             onClick={(e) => onClick(e,id)}>
                                 <FontAwesomeIcon icon={tiles[id]['icon']} size="lg" />
                             </i>
-                        </Tooltip>
+                        </MLTooltip>
                     )
                 }
             })}

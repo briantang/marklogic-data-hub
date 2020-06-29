@@ -4,6 +4,8 @@ import {Button, Card, Col, Row, Modal} from 'antd';
 import axios from 'axios';
 import { UserContext } from '../../util/user-context';
 import { AuthoritiesContext } from "../../util/authorities";
+import { MLButton } from '@marklogic/design-system';
+
 
 const SystemInfo = (props) => {
     const authorityService = useContext(AuthoritiesContext);
@@ -74,11 +76,11 @@ const SystemInfo = (props) => {
                                 <div className={styles.title}>Download Configuration Files</div>
                                 <p>Download a zip file containing flow definitions, step definitions and other user artifacts created or modified by Hub Central.</p>
                                 <div className={styles.buttonContainer}>
-                                    <Button 
+                                    <MLButton 
                                         type="primary" 
                                         disabled = {! authorityService.canDownloadProjectFiles()}
                                         onClick={download}
-                                    >Download</Button>
+                                    >Download</MLButton>
                                 </div>
                             </Card>
                         </Col>
@@ -88,7 +90,7 @@ const SystemInfo = (props) => {
                                 <div className={styles.title}>Clear All User Data</div>
                                 <p>Delete all user data in STAGING, FINAL, and JOBS databases.</p>
                                 <div className={styles.buttonContainer}>
-                                    <Button type="primary">Clear</Button>
+                                    <MLButton type="primary">Clear</MLButton>
                                 </div>
                             </Card>
                         </Col>

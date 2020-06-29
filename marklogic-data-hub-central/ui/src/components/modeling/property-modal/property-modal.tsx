@@ -8,6 +8,7 @@ import StructuredTypeModal from '../structured-type-modal/structured-type-modal'
 import ConfirmationModal from '../../confirmation-modal/confirmation-modal';
 import { ModelingContext } from '../../../util/modeling-context';
 import { ModelingTooltips } from '../../../config/tooltips.config';
+import { MLTooltip, MLCheckbox } from '@marklogic/design-system';
 
 import { 
   ConfirmationType,
@@ -510,9 +511,9 @@ const PropertyModal: React.FC<Props> = (props) => {
           <Radio aria-label={radio.value + '-yes'} value={'yes'}>Yes</Radio>
           <Radio aria-label={radio.value + '-no'} value={'no'}>No</Radio>
         </Radio.Group>
-        <Tooltip title={radio.tooltip}>
+        <MLTooltip title={radio.tooltip}>
           <Icon type="question-circle" className={styles.radioQuestionIcon} theme="filled" />
-        </Tooltip>
+        </MLTooltip>
       </Form.Item>
     )
   });
@@ -526,15 +527,15 @@ const PropertyModal: React.FC<Props> = (props) => {
         labelAlign="left"
         colon={false}
       >
-        <Checkbox
+        <MLCheckbox
           id={checkbox.value}
           disabled={checkbox.value === 'wildcard' ? false : true}
           checked={selectedPropertyOptions[checkbox.value]}
           onChange={(event) => onCheckboxChange(event, checkbox.value)}
-        >{checkbox.label}</Checkbox>
-        <Tooltip title={checkbox.tooltip}>
+        >{checkbox.label}</MLCheckbox>
+        <MLTooltip title={checkbox.tooltip}>
           <Icon type="question-circle" className={styles.checkboxQuestionIcon} theme="filled" />
-        </Tooltip>
+        </MLTooltip>
       </Form.Item>
     )
   });
@@ -619,9 +620,9 @@ const PropertyModal: React.FC<Props> = (props) => {
             onChange={handleInputChange}
             onBlur={handleInputChange}
           />
-          <Tooltip title={ModelingTooltips.nameRegex}>
+          <MLTooltip title={ModelingTooltips.nameRegex}>
             <Icon type="question-circle" className={styles.icon} theme="filled" />
-          </Tooltip> 
+          </MLTooltip> 
         </Form.Item>
 
         <Form.Item 

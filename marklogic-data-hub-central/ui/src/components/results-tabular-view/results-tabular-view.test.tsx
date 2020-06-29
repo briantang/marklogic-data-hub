@@ -62,8 +62,8 @@ describe("Results Table view component", () => {
         expect(queryByText('Carm din')).toBeNull();
         expect(getByText('Carm')).toBeInTheDocument();
         expect(getByText('din')).toBeInTheDocument();
-        expect(getByText('Carm')).toContainHTML('<div style="text-overflow: ellipsis; overflow: hidden;">Carm</div>');
-        expect(getByText('din')).toContainHTML('<div style="text-overflow: ellipsis; overflow: hidden;">din</div>');
+        expect(getByText('Carm')).toContainHTML('<div class="ml-tooltip-container" style="text-overflow: ellipsis; overflow: hidden;">Carm</div>');
+        expect(getByText('din')).toContainHTML('<div class="ml-tooltip-container" style="text-overflow: ellipsis; overflow: hidden;">din</div>');
         expect(getByText('Carm').closest('td')).toEqual(getByText('din').closest('td'))
     });
 })

@@ -6,6 +6,7 @@ import styles from './results-tabular-view.module.scss';
 import ColumnSelector from '../../components/column-selector/column-selector';
 import { Tooltip } from 'antd';
 import { SearchContext } from '../../util/search-context';
+import { MLTooltip } from '@marklogic/design-system';
 
 interface Props {
     data: any;
@@ -51,10 +52,10 @@ const ResultsTabularView = (props) => {
                                 let title = item.toString();
                                 if (item && title && title.length > 0) {
                                     values.push(
-                                        <Tooltip
+                                        <MLTooltip
                                             title={title}>
                                             <div style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>{item}</div>
-                                        </Tooltip>
+                                        </MLTooltip>
                                     )
                                 }
                             })
@@ -64,10 +65,10 @@ const ResultsTabularView = (props) => {
                         } else {
                             return {
                                 children: (
-                                    <Tooltip
+                                    <MLTooltip
                                         title={value}>
                                         <div style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>{value}</div>
-                                    </Tooltip>
+                                    </MLTooltip>
                                 )
                             }
                         }
