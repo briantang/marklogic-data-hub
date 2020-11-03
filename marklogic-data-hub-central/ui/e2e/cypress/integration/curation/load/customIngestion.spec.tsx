@@ -26,7 +26,8 @@ describe('Custom Ingestion', () => {
         // create load step
         toolbar.getLoadToolbarIcon().click();
         cy.waitUntil(() => loadPage.stepName('ingestion-step').should('be.visible'));
-        loadPage.stepSettings(loadStep).click();
+        loadPage.editStepInCardView(loadStep).click();
+        loadPage.stepSettings().click();
         //custom ingestion steps have step definition name
         cy.findByText('Step Definition Name').should("exist");
 

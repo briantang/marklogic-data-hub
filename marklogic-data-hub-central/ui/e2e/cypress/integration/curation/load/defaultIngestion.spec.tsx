@@ -59,9 +59,13 @@ describe('Default ingestion ', () => {
 
         //Verify Settings
         // TODO Verify Advanced Settings
-        loadPage.stepSettings(stepName).click(); // TODO should click Edit instead
+
+        //open Edit again
+        loadPage.stepName(stepName).click();
+        //Click Advanced tab
+        loadPage.stepSettings().click(); // TODO should click Edit instead
         // TODO click Advanced tab, need to write a helper and do this
-        loadPage.stepNameInSettings().should('have.text', stepName); // NO LONGER THERE, should fail here, remove
+        // loadPage.stepNameInSettings().should('have.text', stepName); // NO LONGER THERE, should fail here, remove
         // The rest should run OK (???)
         loadPage.selectTargetDB('FINAL');
         loadPage.targetCollectionInput().type('e2eTestCollection{enter}test1{enter}test2{enter}');
@@ -137,10 +141,13 @@ describe('Default ingestion ', () => {
 
         //Verify Settings
         cy.waitForAsyncRequest();
-        loadPage.stepSettings(stepName).click(); // SETTINGS ICON NO LONGER THERE, should fail here, remove
+        //Open Edit again
         // TODO open edit dialog, same as above
-        loadPage.stepNameInSettings().should('have.text', stepName); // This should exist under Basic tab
+        loadPage.editStepInCardView(stepName).click();
+        // loadPage.stepNameInSettings().should('have.text', stepName); // This should exist under Basic tab (BRIAN: This line fails even on the Basic tab because it's targetting the wrong place. May be okay to comment out as it was originally meant to verify the stepname at the top and that is no longer there)
         // TODO click Advanced tab, need to write a helper and do this (see above)
+        //Click Advanced Tab
+        loadPage.stepSettings().click(); 
         // The rest should run OK (???)
         loadPage.selectTargetDB('STAGING');
         loadPage.targetCollectionInput().type('e2eTestCollection{enter}test1{enter}test2{enter}');

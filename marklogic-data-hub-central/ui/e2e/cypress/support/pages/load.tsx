@@ -55,8 +55,8 @@ class LoadPage {
         return cy.findByLabelText(`${stepName}-disabled-add-icon`);
     }
 
-    stepSettings(stepName: string) {
-        return cy.findByTestId(`${stepName}-settings`);
+    stepSettings() {
+        return cy.findByText(`Advanced`);
     }
 
     deleteStep(stepName: string) {
@@ -130,9 +130,9 @@ class LoadPage {
     }
 
     //Settings page objects
-    stepNameInSettings() {
-        return cy.get('div p').last();
-    }
+    // stepNameInSettings() {
+    //     return cy.get('div p').last();
+    // }
 
     /**
      * Clicks on a database option
