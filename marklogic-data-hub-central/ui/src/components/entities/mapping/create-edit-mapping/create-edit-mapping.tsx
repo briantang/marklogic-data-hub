@@ -10,7 +10,6 @@ interface Props {
   tabKey: string;
   openStepSettings: boolean;
   setOpenStepSettings: any;
-  openStepDetails: any;
   isEditing: boolean;
   canReadWrite: boolean;
   canReadOnly: boolean;
@@ -50,66 +49,52 @@ const CreateEditMapping: React.FC<Props> = (props) => {
   const [errorMessage, setErrorMessage] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const [tobeDisabled, setTobeDisabled] = useState(false);
-  const [changed, setChanged] = useState(false);
 
   const initStep = () => {
     setMapName(props.stepData.name);
     setDescription(props.stepData.description);
     setSrcQuery(props.stepData.sourceQuery);
     setSelectedSource(props.stepData.selectedSource);
-    if (isQuerySelected === true) setCollections("");
     if (props.stepData.selectedSource === "collection") {
-      if (props.stepData.sourceQuery.includes("[") && props.stepData.sourceQuery.includes("]")) {
-        let srcCollection = props.stepData.sourceQuery.substring(
-          props.stepData.sourceQuery.lastIndexOf("[") + 2,
-          props.stepData.sourceQuery.lastIndexOf("]") - 1
-        );
-        setCollections(srcCollection);
-      } else if ((props.stepData.sourceQuery.includes("(") && props.stepData.sourceQuery.includes(")"))) {
-        let srcCollection = props.stepData.sourceQuery.substring(
-          props.stepData.sourceQuery.lastIndexOf("(") + 2,
-          props.stepData.sourceQuery.lastIndexOf(")") - 1
-        );
-        setCollections(srcCollection);
-      } else {
-        setCollections(props.stepData.sourceQuery);
-      }
+      let srcCollection = props.stepData.sourceQuery.substring(
+        props.stepData.sourceQuery.lastIndexOf("[") + 2,
+        props.stepData.sourceQuery.lastIndexOf("]") - 1
+      );
+      setCollections(srcCollection);
     }
+    resetTouchedValues();
     setIsValid(true);
     setTobeDisabled(true);
 
-    setDescriptionTouched(false);
-    setCollectionsTouched(false);
-    setSrcQueryTouched(false);
-    setSelectedSourceTouched(false);
+    props.setIsValid(true);
   };
 
   useEffect(() => {
-    // Edit step
-    if (props.stepData && JSON.stringify(props.stepData) !== JSON.stringify({}) && props.isEditing) {
+    // Edit mapping
+    if (props.isEditing) {
       initStep();
-    } else {     // New step
-      setMapName("");
-      setMapNameTouched(false);
-      setCollections("");
-      setDescription("");
-      setSrcQuery("");
-      setIsNameDuplicate(false);
+    } else { // New mapping
+      reset();
+      props.setIsValid(false);
     }
-    // Reset
-    return (() => {
-      setMapName("");
-      setMapNameTouched(false);
-      setDescription("");
-      setDescriptionTouched(false);
-      setSelectedSource("collection");
-      setSelectedSourceTouched(false);
-      setCollectionsTouched(false);
-      setTobeDisabled(false);
-      setIsNameDuplicate(false);
-    });
+  }, [props.openStepSettings]);
 
-  }, [props.stepData]);
+  const reset = () => {
+    setMapName("");
+    setDescription("");
+    setSelectedSource("collection");
+    setTobeDisabled(false);
+    setCollections("");
+    setSrcQuery("");
+    resetTouchedValues();
+  };
+
+  const resetTouchedValues = () => {
+    setMapNameTouched(false);
+    setDescriptionTouched(false);
+    setSelectedSourceTouched(false);
+    setCollectionsTouched(false);
+  };
 
   const onCancel = () => {
     // Parent checks changes across tabs
@@ -120,8 +105,7 @@ const CreateEditMapping: React.FC<Props> = (props) => {
   useEffect(() => {
     props.setHasChanged(hasFormChanged());
     props.setPayload(getPayload());
-    setChanged(false);
-  }, [changed]);
+  }, [mapName, description, collections, selectedSource, srcQuery]);
 
   const hasFormChanged = () => {
     if (!isMapNameTouched
@@ -137,9 +121,9 @@ const CreateEditMapping: React.FC<Props> = (props) => {
   };
 
   const getPayload = () => {
-    let result;
+    let result, sQuery;
     if (selectedSource === "collection") {
-      let sQuery = `cts.collectionQuery(['${collections}'])`;
+      sQuery = collections ? `cts.collectionQuery(['${collections}'])` : props.stepData.sourceQuery;
       result = {
         name: mapName,
         targetEntityType: props.targetEntityType,
@@ -149,12 +133,13 @@ const CreateEditMapping: React.FC<Props> = (props) => {
       };
     } else {
       setIsQuerySelected(true); //to reset collection name
+      sQuery = srcQuery? srcQuery : props.stepData.sourceQuery;
       result = {
         name: mapName,
         targetEntityType: props.targetEntityType,
         description: description,
         selectedSource: selectedSource,
-        sourceQuery: srcQuery
+        sourceQuery: sQuery
       };
     }
     return result;
@@ -187,8 +172,6 @@ const CreateEditMapping: React.FC<Props> = (props) => {
     props.setOpenStepSettings(false);
     props.resetTabs();
     await props.createMappingArtifact(getPayload());
-    props.openStepDetails(mapName);
-
   };
 
   const handleSearch = async (value: any) => {
@@ -223,6 +206,7 @@ const CreateEditMapping: React.FC<Props> = (props) => {
   };
 
   const handleTypeaheadChange = (data: any) => {
+
     if (data === " ") {
       setCollectionsTouched(false);
     } else {
@@ -241,7 +225,6 @@ const CreateEditMapping: React.FC<Props> = (props) => {
         setIsValid(false);
       }
     }
-    setChanged(true);
   };
 
   const handleChange = (event) => {
@@ -254,10 +237,12 @@ const CreateEditMapping: React.FC<Props> = (props) => {
         if (event.target.value.length > 0) {
           if (collections|| srcQuery) {
             setIsValid(true);
+            props.setIsValid(true);
             setIsNameDuplicate(false);
           }
         } else {
           setIsValid(false);
+          props.setIsValid(false);
         }
       }
     }
@@ -290,9 +275,11 @@ const CreateEditMapping: React.FC<Props> = (props) => {
         if (event.target.value.length > 0) {
           if (mapName) {
             setIsValid(true);
+            props.setIsValid(true);
           }
         } else {
           setIsValid(false);
+          props.setIsValid(false);
         }
       }
     }
@@ -311,13 +298,14 @@ const CreateEditMapping: React.FC<Props> = (props) => {
         if (event.target.value.length > 0) {
           if (mapName) {
             setIsValid(true);
+            props.setIsValid(true);
           }
         } else {
           setIsValid(false);
+          props.setIsValid(false);
         }
       }
     }
-    setChanged(true);
   };
   /* // Handling multiple collections in a select tags list - Deprecated
   const handleCollList = (value) => {
@@ -356,26 +344,34 @@ const CreateEditMapping: React.FC<Props> = (props) => {
       if (event.target.value === "collection") {
         if (mapName && collections) {
           setIsValid(true);
+          props.setIsValid(true);
         } else {
           setIsValid(false);
+          props.setIsValid(false);
         }
       } else {
         if (mapName && srcQuery) {
           setIsValid(true);
+          props.setIsValid(true);
         } else {
           setIsValid(false);
+          props.setIsValid(false);
         }
       }
     }
-    setChanged(true);
   };
 
   const isSourceQueryValid = () => {
-    if ((collections && selectedSource === "collection") ||
-    (srcQuery && selectedSource !== "collection") ||
-    (!isSelectedSourceTouched && !isCollectionsTouched && !isSrcQueryTouched)) {
+    if ((collections && selectedSource === "collection") || (srcQuery && selectedSource !== "collection")) {
+      // Touched
       if (props.currentTab === props.tabKey) {
         props.setIsValid(true);
+      }
+      return true;
+    } else if ((!isSelectedSourceTouched && !isCollectionsTouched && !isSrcQueryTouched)) {
+      // Untouched
+      if (props.currentTab === props.tabKey) {
+        props.setIsValid(false);
       }
       return true;
     } else {

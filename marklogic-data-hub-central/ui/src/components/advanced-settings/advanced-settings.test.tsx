@@ -35,7 +35,7 @@ describe("Advanced step settings", () => {
     expect(getByText("Target Collections")).toBeInTheDocument();
     expect(getByText("Please add target collections")).toBeInTheDocument();
     expect(getByText("Default Collections")).toBeInTheDocument();
-    expect((await(waitForElement(() => getAllByText("testCollection")))).length > 0);
+    expect((await(waitForElement(() => getAllByText("AdvancedLoad")))).length > 0);
 
     expect(getByText("Target Permissions")).toBeInTheDocument();
 
@@ -60,8 +60,7 @@ describe("Advanced step settings", () => {
 
   });
 
-  /* Custom ingestion step should be same as default-ingestion except that for "step definition name"
-     field which should be present*/
+  /* Custom ingestion step should be same as default-ingestion except "step definition name" field should be present */
   test("Verify settings for Custom Load step", async () => {
     const {getByText, getAllByText, queryByText} = render(
       <AdvancedSettings {...data.customLoad} />
@@ -74,8 +73,8 @@ describe("Advanced step settings", () => {
     expect(getByText("Target Collections")).toBeInTheDocument();
     expect(getByText("Please add target collections")).toBeInTheDocument();
     expect(getByText("Default Collections")).toBeInTheDocument();
+    expect(getAllByText(data.customLoad.stepData.collections[0]).length > 0);
 
-    expect((await(waitForElement(() => getAllByText("custom-ingestion")))).length > 0);
     expect(getByText("Step Definition Name")).toBeInTheDocument();
 
     expect(getByText("Target Permissions")).toBeInTheDocument();
@@ -111,7 +110,7 @@ describe("Advanced step settings", () => {
     expect(getByText("Target Collections")).toBeInTheDocument();
     expect(getByText("Please add target collections")).toBeInTheDocument();
     expect(getByText("Default Collections")).toBeInTheDocument();
-    expect((await(waitForElement(() => getAllByText("testCollection")))).length > 0);
+    expect((await(waitForElement(() => getAllByText("AdvancedMapping")))).length > 0);
 
     expect(getByText("Target Permissions")).toBeInTheDocument();
 
@@ -138,14 +137,14 @@ describe("Advanced step settings", () => {
   });
 
   test("Verify settings for Matching", async () => {
-    const {getByText} = render(
+    const {getByText, getAllByText} = render(
       <AdvancedSettings {...data.advancedMatching} />
     );
 
     expect(getByText("Source Database")).toBeInTheDocument();
-    expect(getByText("data-hub-FINAL")).toBeInTheDocument();
+    expect(getAllByText("data-hub-FINAL")[0]).toBeInTheDocument();
     expect(getByText("Target Database")).toBeInTheDocument();
-    expect(getByText("data-hub-FINAL")).toBeInTheDocument();
+    expect(getAllByText("data-hub-FINAL")[1]).toBeInTheDocument();
 
     expect(getByText("Target Collections")).toBeInTheDocument();
     expect(getByText("Please add target collections")).toBeInTheDocument();
@@ -175,9 +174,9 @@ describe("Advanced step settings", () => {
     );
 
     expect(getByText("Source Database")).toBeInTheDocument();
-    expect(getByText("data-hub-FINAL")).toBeInTheDocument();
+    expect(getAllByText("data-hub-FINAL")[0]).toBeInTheDocument();
     expect(getByText("Target Database")).toBeInTheDocument();
-    expect(getByText("data-hub-FINAL")).toBeInTheDocument();
+    expect(getAllByText("data-hub-FINAL")[1]).toBeInTheDocument();
 
     expect(getByText("Target Collections:")).toBeInTheDocument();
     expect(getByText("Default Collections")).toBeInTheDocument();
@@ -314,8 +313,8 @@ describe("Advanced step settings", () => {
     expect(getByPlaceholderText("Please enter batch size")).toHaveValue("25");
 
     // Verify targetFormat options select field
-    expect(getByText("JSON")).toBeInTheDocument();
-    fireEvent.click(getByText("JSON"));
+    expect(getAllByText("JSON")[0]).toBeInTheDocument();
+    fireEvent.click(getAllByText("JSON")[0]);
     const testFormatOptions = getAllByTestId("targetFormatOptions").map(li => li);
     expect(testFormatOptions.map(li => li.textContent).toString()).toEqual("JSON,XML");
     fireEvent.select(testFormatOptions[1]);
