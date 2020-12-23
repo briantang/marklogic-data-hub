@@ -186,9 +186,9 @@ const CreateEditMapping: React.FC<Props> = (props) => {
   };
 
   const getPayload = () => {
-    let result;
+    let result, sQuery;
     if (selectedSource === "collection") {
-      let sQuery = `cts.collectionQuery(['${collections}'])`;
+      sQuery = collections ? `cts.collectionQuery(['${collections}'])` : props.stepData.sourceQuery;
       result = {
         name: mapName,
         targetEntityType: props.targetEntityType,
@@ -198,12 +198,13 @@ const CreateEditMapping: React.FC<Props> = (props) => {
       };
     } else {
       setIsQuerySelected(true); //to reset collection name
+      sQuery = srcQuery? srcQuery : props.stepData.sourceQuery;
       result = {
         name: mapName,
         targetEntityType: props.targetEntityType,
         description: description,
         selectedSource: selectedSource,
-        sourceQuery: srcQuery
+        sourceQuery: sQuery
       };
     }
     return result;

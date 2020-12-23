@@ -51,7 +51,7 @@ const CreateEditStep: React.FC<Props>  = (props) => {
 
   const [collections, setCollections] = useState("");
   const [collectionOptions, setCollectionOptions] = useState(["a", "b"]);
-  const [selectedSource, setSelectedSource] = useState("collection");
+  const [selectedSource, setSelectedSource] = useState(props.editStepArtifactObject.selectedSource ? props.editStepArtifactObject.selectedSource : "collection");
   const [srcQuery, setSrcQuery] = useState("");
 
   //To check submit validity
@@ -89,6 +89,12 @@ const CreateEditStep: React.FC<Props>  = (props) => {
 
     props.setIsValid(true);
   };
+
+  useEffect(()=> {
+    console.log("init: ", props.editStepArtifactObject);
+    console.log("coll: ", collections);
+    console.log("sqry: ", srcQuery);
+  })
 
   useEffect(() => {
     if (props.currentTab === props.tabKey) {
@@ -153,9 +159,9 @@ const CreateEditStep: React.FC<Props>  = (props) => {
   };
 
   const getPayload = () => {
-    let result;
+    let result, sQuery;
     if (selectedSource === "collection") {
-      let sQuery = `cts.collectionQuery(['${collections}'])`;
+      sQuery = collections ? `cts.collectionQuery(['${collections}'])` : props.editStepArtifactObject.sourceQuery;
       result = {
         name: stepName,
         targetEntityType: props.targetEntityType,
@@ -164,12 +170,13 @@ const CreateEditStep: React.FC<Props>  = (props) => {
         sourceQuery: sQuery
       };
     } else {
+      sQuery = srcQuery ? srcQuery : props.editStepArtifactObject.sourceQuery;
       result = {
         name: stepName,
         targetEntityType: props.targetEntityType,
         description: description,
         selectedSource: selectedSource,
-        sourceQuery: srcQuery
+        sourceQuery: sQuery
       };
     }
     if (props.stepType === StepType.Merging) {
