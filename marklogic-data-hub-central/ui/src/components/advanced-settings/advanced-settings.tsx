@@ -220,8 +220,11 @@ const AdvancedSettings: React.FC<Props> = (props) => {
         setTargetCollections(props.stepData.targetCollections || {});
       }
     }
-    setChanged(true);
   };
+
+  useEffect(() => {
+    setChanged(true);
+  }, [batchSize, sourceDatabase, targetCollections, advancedTargetCollectionsTouched, defaultTargetCollections, targetPermissions, targetDatabase, validateEntity, provGranularity, headers, processors, customHook, additionalSettings, targetCollections, targetFormat, targetPermissions, isCustomIngestion, stepDefinitionName]);
 
   const onCancel = () => {
     // Parent handles checking changes across tabs
@@ -367,7 +370,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setBatchSize(event.target.value);
       setBatchSizeTouched(true);
     }
-    setChanged(true);
   };
 
   const handleBlur = (event) => {
@@ -394,8 +396,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
     if (event.target.id === "targetPermissions") {
       setTargetPermissionsValid(isPermissionsValid());
     }
-
-    setChanged(true);
   };
 
   const handleSourceDatabase = (value) => {
@@ -405,7 +405,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setSourceDatabaseTouched(true);
       setSourceDatabase(value);
     }
-    setChanged(true);
   };
 
   const handleTargetDatabase = (value) => {
@@ -415,7 +414,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setTargetDatabaseTouched(true);
       setTargetDatabase(value);
     }
-    setChanged(true);
   };
 
   const handleAddColl = (value) => {
@@ -426,7 +424,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       // default collections will come from default settings retrieved. Don't want them to be added to additionalCollections property
       setAdditionalCollections(value.filter((col) => !defaultCollections.includes(col)));
     }
-    setChanged(true);
   };
 
   const handleAdvancedTargetCollections = (value) => {
@@ -436,7 +433,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setAdvancedTargetCollectionsTouched(true);
       setTargetCollections(value);
     }
-    setChanged(true);
   };
 
   const handleTargetFormat = (value) => {
@@ -446,7 +442,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setTargetFormat(value);
       setTargetFormatTouched(true);
     }
-    setChanged(true);
   };
 
   const handleProvGranularity = (value) => {
@@ -456,7 +451,6 @@ const AdvancedSettings: React.FC<Props> = (props) => {
       setProvGranularityTouched(true);
       setProvGranularity(value);
     }
-    setChanged(true);
   };
 
   const handleValidateEntity = (value) => {

@@ -90,12 +90,6 @@ const CreateEditStep: React.FC<Props>  = (props) => {
     props.setIsValid(true);
   };
 
-  useEffect(()=> {
-    console.log("init: ", props.editStepArtifactObject);
-    console.log("coll: ", collections);
-    console.log("sqry: ", srcQuery);
-  })
-
   useEffect(() => {
     if (props.currentTab === props.tabKey) {
       // Edit Step Artifact
@@ -265,6 +259,7 @@ const CreateEditStep: React.FC<Props>  = (props) => {
         props.setIsValid(false);
       }
     }
+    setChanged(true);
   };
 
   const handleChange = (event) => {
