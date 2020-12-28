@@ -237,8 +237,9 @@ const CreateEditMapping: React.FC<Props> = (props) => {
     props.setOpenStepSettings(false);
     props.resetTabs();
     await props.createMappingArtifact(getPayload());
-    props.openStepDetails(mapName);
-
+    if(!props.isEditing){
+      props.openStepDetails(mapName);
+    }
   };
 
   const handleSearch = async (value: any) => {
