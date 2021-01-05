@@ -62,6 +62,7 @@ const CreateEditLoad: React.FC<Props> = (props) => {
     setTgtFormat(props.stepData.targetFormat);
     setOutputUriPrefix(props.stepData.outputURIPrefix);
     setIsValid(true);
+    props.setIsValid(true);
     setTobeDisabled(true);
 
     setDescriptionTouched(false);
