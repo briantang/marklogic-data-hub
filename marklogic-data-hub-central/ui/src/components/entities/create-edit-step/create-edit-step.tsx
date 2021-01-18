@@ -65,6 +65,7 @@ const CreateEditStep: React.FC<Props>  = (props) => {
   const [isSelectedSourceTouched, setSelectedSourceTouched] = useState(false);
   const [isTimestampTouched, setTimestampTouched] = useState(false);
 
+  const [invalidChars, setInvalidChars] = useState(false);
   const [isValid, setIsValid] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const [tobeDisabled, setTobeDisabled] = useState(false);
@@ -191,7 +192,7 @@ const CreateEditStep: React.FC<Props>  = (props) => {
       // missing query (if query is selected)
       setSrcQueryTouched(true);
     }
-    if (!stepName || (!collections && selectedSource === "collection") || (!srcQuery && selectedSource !== "collection")) {
+    if (!stepName || invalidChars || (!collections && selectedSource === "collection") || (!srcQuery && selectedSource !== "collection")) {
       // if missing flags are set, do not submit handle
       event.preventDefault();
       return;
@@ -271,6 +272,14 @@ const CreateEditStep: React.FC<Props>  = (props) => {
       } else {
         setStepNameTouched(true);
         setStepName(event.target.value);
+
+        //check value does not contain special chars and leads with a letter
+        if(event.target.value !== "" && !(/^[a-zA-Z][a-zA-Z0-9\-_]*$/).test(event.target.value)){
+          setInvalidChars(true);
+        } else {
+          setInvalidChars(false);
+        }
+
         if (event.target.value.length > 0) {
           if (collections || srcQuery) {
             setIsValid(true);
@@ -388,8 +397,8 @@ const CreateEditStep: React.FC<Props>  = (props) => {
             Name:&nbsp;<span className={styles.asterisk}>*</span>
             &nbsp;
         </span>} labelAlign="left"
-        validateStatus={(stepName || !isStepNameTouched) ? "" : "error"}
-        help={(stepName || !isStepNameTouched) ? "" : "Name is required"}
+        validateStatus={(stepName || !isStepNameTouched) ? (invalidChars ? "error" : "") : "error"}
+        help={invalidChars ? "Names must start with a letter and can contain letters, numbers, hyphens, and underscores only." : (stepName || !isStepNameTouched) ? "" : "Name is required"}
         >
           { tobeDisabled?<MLTooltip title={NewMatchTooltips.nameField} placement={"bottom"}> <Input
             id="name"

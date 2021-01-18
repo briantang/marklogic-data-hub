@@ -47,6 +47,7 @@ const CreateEditLoad: React.FC<Props> = (props) => {
   const [isOtherSeparatorTouched, setOtherSeparatorTouched] = useState(false);
 
   const [isValid, setIsValid] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [invalidChars, setInvalidChars] = useState(false);
   const [tobeDisabled, setTobeDisabled] = useState(false);
 
   const initStep = () => {
@@ -185,7 +186,7 @@ const CreateEditLoad: React.FC<Props> = (props) => {
   };
 
   const handleSubmit = (event: { preventDefault: () => void; }) => {
-    if (!stepName) {
+    if (!stepName || invalidChars) {
       // missing name
       setStepNameTouched(true);
       event.preventDefault();
@@ -215,6 +216,12 @@ const CreateEditLoad: React.FC<Props> = (props) => {
         setStepNameTouched(true);
         setStepName(event.target.value);
 
+        //check value does not contain special chars and leads with a letter
+        if(event.target.value !== "" && !(/^[a-zA-Z][a-zA-Z0-9\-_]*$/).test(event.target.value)){
+          setInvalidChars(true);
+        } else {
+          setInvalidChars(false);
+        }
         if (event.target.value.length === 0) {
           setIsValid(false);
           props.setIsValid(false);
@@ -414,8 +421,8 @@ const CreateEditLoad: React.FC<Props> = (props) => {
 
           &nbsp;
         </span>} labelAlign="left"
-        validateStatus={(stepName || !isStepNameTouched) ? "" : "error"}
-        help={(stepName || !isStepNameTouched) ? "" : "Name is required"}
+        validateStatus={(stepName || !isStepNameTouched) ? (invalidChars ? "error" : "") : "error"}
+        help={invalidChars ? "Names must start with a letter and can contain letters, numbers, hyphens, and underscores only." : (stepName || !isStepNameTouched) ? "" : "Name is required"}
         >
           { tobeDisabled?<MLTooltip title={NewLoadTooltips.nameField} placement={"bottom"}> <Input
             id="name"
