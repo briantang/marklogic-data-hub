@@ -11,7 +11,8 @@ import {
 } from "../../../types/modeling-types";
 import {ConfirmationType} from "../../../types/common-types";
 
-import {entityReferences} from "../../../api/modeling";
+import {entityReferences, primaryEntityTypes} from "../../../api/modeling";
+import curateData from "../../../assets/mock-data/curation/flows.data";
 import {getSystemInfo} from "../../../api/environment";
 import {definitionsParser} from "../../../util/data-conversion";
 import {propertyTableEntities, referencePayloadEmpty, referencePayloadSteps, referencePayloadStepRelationships} from "../../../assets/mock-data/modeling/modeling";
@@ -23,6 +24,7 @@ jest.mock("../../../api/modeling");
 jest.mock("../../../api/environment");
 
 const mockEntityReferences = entityReferences as jest.Mock;
+const mockPrimaryEntityTypes = primaryEntityTypes as jest.Mock;
 const mockGetSystemInfo = getSystemInfo as jest.Mock;
 
 
@@ -140,14 +142,16 @@ describe("Property Modal Component", () => {
     expect(mockGetSystemInfo).toBeCalledTimes(1);
   });
 
-  test("Add a Property with relationship type", () => {
+  test.only("Add a Property with relationship type", async () => {
     mockGetSystemInfo.mockResolvedValueOnce({status: 200, data: {}});
+    // Mock population of Join Property menu
+    mockPrimaryEntityTypes.mockResolvedValue(curateData.primaryEntityTypes);
 
     let entityType = propertyTableEntities.find(entity => entity.entityName === "Customer");
     let entityDefninitionsArray = definitionsParser(entityType?.model.definitions);
     let mockAdd = jest.fn();
 
-    const {getByPlaceholderText, getByText, getByLabelText} =  render(
+    const {getByPlaceholderText, getByText, getByLabelText, debug} =  render(
       <ModelingContext.Provider value={entityNamesArray}>
         <PropertyModal
           entityName={entityType?.entityName}
@@ -166,6 +170,7 @@ describe("Property Modal Component", () => {
 
     userEvent.type(getByPlaceholderText("Enter the property name"), "Entity-Property");
 
+    // Choose related entity type
     userEvent.click(getByPlaceholderText("Select the property type"));
     userEvent.click(getByText("Related Entity"));
     userEvent.click(getByText("Concept"));
@@ -176,13 +181,20 @@ describe("Property Modal Component", () => {
     expect(screen.queryByLabelText("Facet")).toBeNull();
     //expect(screen.queryByLabelText('Wildcard Search')).toBeNull();
 
-    const multipleRadio = screen.getByLabelText("multiple-no");
-    fireEvent.change(multipleRadio, {target: {value: "no"}});
-    expect(multipleRadio["value"]).toBe("no");
+    // Choose join property after menu is populated
+    userEvent.click(getByText("Select the join property"));
+    expect(mockPrimaryEntityTypes).toBeCalledTimes(1);
+    await wait(() => expect(getByText("customerId")).toBeInTheDocument());
+    userEvent.click(getByText("customerId"));
+    debug();
 
-    userEvent.click(getByLabelText("property-modal-submit"));
-    expect(mockAdd).toHaveBeenCalledTimes(1);
-    expect(mockGetSystemInfo).toBeCalledTimes(1);
+    // const multipleRadio = screen.getByLabelText("multiple-no");
+    // fireEvent.change(multipleRadio, {target: {value: "no"}});
+    // expect(multipleRadio["value"]).toBe("no");
+
+    // userEvent.click(getByLabelText("property-modal-submit"));
+    // expect(mockAdd).toHaveBeenCalledTimes(1);
+    // expect(mockGetSystemInfo).toBeCalledTimes(1);
   });
 
   test("can display error message for property name and type inputs and press cancel", () => {

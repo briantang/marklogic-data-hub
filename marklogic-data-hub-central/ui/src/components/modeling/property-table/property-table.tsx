@@ -58,6 +58,8 @@ const DEFAULT_SELECTED_PROPERTY_OPTIONS: PropertyOptions = {
   propertyType: PropertyType.Basic,
   type: "",
   identifier: "no",
+  joinPropertyName: "",
+  joinPropertyType: "",
   multiple: "no",
   pii: "no",
   facetable: false,
@@ -339,11 +341,14 @@ const PropertyTable: React.FC<Props> = (props) => {
     let multiple = propertyOptions.multiple === "yes" ? true : false;
     let facetable = propertyOptions.facetable;
     let sortable = propertyOptions.sortable;
-
+    
     if (propertyOptions.propertyType === PropertyType.RelatedEntity && !multiple) {
       let externalEntity = modelingOptions.entityTypeNamesArray.find(entity => entity.name === propertyOptions.type);
       return {
-        $ref: externalEntity.entityTypeId,
+        datatype: propertyOptions.joinPropertyType,
+        relatedEntityType: externalEntity.entityTypeId,
+        joinPropertyName: propertyOptions.joinPropertyName,
+        //joinPropertyType: propertyOptions.joinPropertyType
       };
 
     } else if (propertyOptions.propertyType === PropertyType.RelatedEntity && multiple) {
@@ -353,7 +358,10 @@ const PropertyTable: React.FC<Props> = (props) => {
         facetable: facetable,
         sortable: sortable,
         items: {
-          $ref: externalEntity.entityTypeId,
+          datatype: propertyOptions.joinPropertyType,
+          relatedEntityType: externalEntity.entityTypeId,
+          joinPropertyName: propertyOptions.joinPropertyName,
+          //joinPropertyType: propertyOptions.joinPropertyType
         }
       };
 
@@ -441,10 +449,12 @@ const PropertyTable: React.FC<Props> = (props) => {
   };
 
   const editPropertyShowModal = (text: string, record: any) => {
+    console.log("editPropertyShowModal", modelingOptions, record);
     let parseKey = record.key.split(",");
     let propertyType = PropertyType.Basic;
     let newStructuredTypes: StructuredTypeOptions = DEFAULT_STRUCTURED_TYPE_OPTIONS;
-    let relationshipType = modelingOptions.entityTypeNamesArray.find(entity => entity.name === record.type);
+    //let relationshipType = modelingOptions.entityTypeNamesArray.find(entity => entity.name === record.type);
+    let relationshipType = record.joinPropertyName;
 
     if (record.hasOwnProperty("structured")) {
       if (record.hasOwnProperty("add")) {
@@ -482,6 +492,8 @@ const PropertyTable: React.FC<Props> = (props) => {
     const propertyOptions: PropertyOptions = {
       propertyType: propertyType,
       type: record.type,
+      joinPropertyName: record.joinPropertyName,
+      joinPropertyType: record.joinPropertyType,
       identifier: record.identifier ? "yes" : "no",
       multiple: record.multiple ? "yes" : "no",
       pii: record.pii ? "yes" : "no",
@@ -501,6 +513,7 @@ const PropertyTable: React.FC<Props> = (props) => {
   };
 
   const editPropertyUpdateDefinition = (definitionName: string, propertyName: string, editPropertyOptions: EditPropertyOptions) => {
+    console.warn("editPropertyUpdateDefinition", editPropertyOptions);
     let parseName = definitionName.split(",");
     let parseDefinitionName = parseName[parseName.length - 1];
     let updatedDefinitions = {...definitions};
@@ -725,6 +738,8 @@ const PropertyTable: React.FC<Props> = (props) => {
           key: property.name + "," + index,
           propertyName: property.name,
           type: property.datatype,
+          joinPropertyName: property.joinPropertyName,
+          joinPropertyType: property.joinPropertyType,
           identifier: entityTypeDefinition?.primaryKey === property.name ? property.name : "",
           multiple: property.multiple ? property.name : "",
           facetable: property.facetable ? property.name : "",
