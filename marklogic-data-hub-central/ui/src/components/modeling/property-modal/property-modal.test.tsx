@@ -142,7 +142,7 @@ describe("Property Modal Component", () => {
     expect(mockGetSystemInfo).toBeCalledTimes(1);
   });
 
-  test.only("Add a Property with relationship type", async () => {
+  test("Add a Property with relationship type", async () => {
     mockGetSystemInfo.mockResolvedValueOnce({status: 200, data: {}});
     // Mock population of Join Property menu
     mockPrimaryEntityTypes.mockResolvedValue(curateData.primaryEntityTypes);
@@ -182,7 +182,9 @@ describe("Property Modal Component", () => {
     //expect(screen.queryByLabelText('Wildcard Search')).toBeNull();
 
     // Choose join property after menu is populated
-    userEvent.click(getByText("Select the join property"));
+    // userEvent.click(getByText("Select the join property"));
+    // aria-label="validateEntity-select"
+    userEvent.click(getByLabelText("joinProperty-select"));
     expect(mockPrimaryEntityTypes).toBeCalledTimes(1);
     await wait(() => expect(getByText("customerId")).toBeInTheDocument());
     userEvent.click(getByText("customerId"));

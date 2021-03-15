@@ -891,6 +891,7 @@ const PropertyModal: React.FC<Props> = (props) => {
               placeholder="Select the join property"
               onChange={onJoinPropertyChange}
               value={joinDisplayValue}
+              aria-label="joinProperty-select"
             >
             {joinProperties.length > 0 && joinProperties.map((prop) => (
               <Option value={prop.value} disabled={prop.disabled}>{prop.label}</Option>
