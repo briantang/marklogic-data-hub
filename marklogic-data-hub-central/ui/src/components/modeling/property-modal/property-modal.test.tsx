@@ -145,13 +145,13 @@ describe("Property Modal Component", () => {
   test("Add a Property with relationship type", async () => {
     mockGetSystemInfo.mockResolvedValueOnce({status: 200, data: {}});
     // Mock population of Join Property menu
-    mockPrimaryEntityTypes.mockResolvedValue(curateData.primaryEntityTypes);
+    mockPrimaryEntityTypes.mockResolvedValue({status: 200, data: curateData.primaryEntityTypes.data});
 
     let entityType = propertyTableEntities.find(entity => entity.entityName === "Customer");
     let entityDefninitionsArray = definitionsParser(entityType?.model.definitions);
     let mockAdd = jest.fn();
 
-    const {getByPlaceholderText, getByText, getByLabelText, debug} =  render(
+    const {getByPlaceholderText, getByText, getByLabelText, getAllByText, debug} =  render(
       <ModelingContext.Provider value={entityNamesArray}>
         <PropertyModal
           entityName={entityType?.entityName}
@@ -173,7 +173,8 @@ describe("Property Modal Component", () => {
     // Choose related entity type
     userEvent.click(getByPlaceholderText("Select the property type"));
     userEvent.click(getByText("Related Entity"));
-    userEvent.click(getByText("Concept"));
+    userEvent.click(getAllByText("Customer")[1]);
+    expect(mockPrimaryEntityTypes).toBeCalledTimes(1);
 
     expect(screen.queryByLabelText("identifier-yes")).toBeNull();
     expect(screen.queryByLabelText("pii-yes")).toBeNull();
@@ -185,9 +186,8 @@ describe("Property Modal Component", () => {
     // userEvent.click(getByText("Select the join property"));
     // aria-label="validateEntity-select"
     userEvent.click(getByLabelText("joinProperty-select"));
-    expect(mockPrimaryEntityTypes).toBeCalledTimes(1);
     await wait(() => expect(getByText("customerId")).toBeInTheDocument());
-    userEvent.click(getByText("customerId"));
+    // userEvent.click(getByText("customerId"));
     debug();
 
     // const multipleRadio = screen.getByLabelText("multiple-no");
