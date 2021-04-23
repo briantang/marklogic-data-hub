@@ -70,7 +70,6 @@ const MappingStepDetail: React.FC = () => {
   const canReadOnly = authorityService.canReadMapping();
   const canReadWrite = authorityService.canWriteMapping();
   const [mapExp, setMapExp] = useState({});
-  const [sourceContext, setSourceContext] = useState({});
   let tempSourceContext: any = {};
   let trackUniqueKeys: any = [];
   /*-------------------*/
@@ -478,7 +477,6 @@ const MappingStepDetail: React.FC = () => {
       let entEntityTempData: any = [];
       let nestedEntityProps = extractNestedEntityData(entProps, entEntityTempData);
       setEntityTypeProperties([...nestedEntityProps]);
-      setTgtEntityReferences({...tgtRefs});
       setTargetRelatedMappings(resp.data[0]["relatedEntityMappings"]);
       if (resp.data[0]["relatedEntityMappings"] && resp.data[0]["relatedEntityMappings"].length > 0) {
         resp.data.forEach(entityObject => {
@@ -486,11 +484,15 @@ const MappingStepDetail: React.FC = () => {
           if (relatedEntityName !== curationOptions.activeStep.entityName && entityObject["entityModel"].definitions && entityObject.mappingTitle && entityObject["entityMappingId"]) {
             let relatedEntProps = entityObject["entityModel"].definitions[relatedEntityName].properties;
             let relatedEntityTempData: any =[];
+            let contextKey = EntityTableKeyIndex + 1;
+            EntityTableKeyIndex++;
             let relatedEntityProps = extractNestedEntityData(relatedEntProps, relatedEntityTempData);
+            relatedEntityProps.unshift({key: contextKey, name: "Context", type: "", isProperty: false, filterName: "Context", filterMatch: false}) //add Context field to front of properties
             setRelatedEntityTypeProperties(prevState => ([...prevState, {entityType: entityObject.entityType, entityLabel: entityObject.mappingTitle, entityMappingId: entityObject.entityMappingId, relatedEntityMappings: entityObject.relatedEntityMappings, entityProps: relatedEntityProps}]));
           }
         });
       }
+      setTgtEntityReferences({...tgtRefs});
     }
   };
 
@@ -514,6 +516,7 @@ const MappingStepDetail: React.FC = () => {
           name: parentKey,
           filterName: key,
           filterMatch: false,
+          isProperty: true,
           type: dataTp,
           children: []
         };
@@ -532,6 +535,7 @@ const MappingStepDetail: React.FC = () => {
             name: parentKey ? parentKey + "/" + key : key,
             filterName: key,
             filterMatch: false,
+            isProperty: true,
             type: dataTp,
             relatedEntityType: relatedEntType,
             joinPropertyName: joinPropName
@@ -543,6 +547,7 @@ const MappingStepDetail: React.FC = () => {
             name: parentKey ? parentKey + "/" + key : key,
             filterName: key,
             filterMatch: false,
+            isProperty: true,
             type: dataTp,
           };
         }
@@ -783,13 +788,6 @@ const MappingStepDetail: React.FC = () => {
         }
       }
     });
-  };
-
-  const handleExpSubmit = async () => {
-    if (mapExpTouched) {
-      await saveMapping(mapExp);
-    }
-    setMapExpTouched(false);
   };
 
   const getDataForValueField = (name) => {
@@ -1136,20 +1134,24 @@ const MappingStepDetail: React.FC = () => {
   };
 
 
-  const saveMapping =  async (mapObject) => {
+  const saveMapping =  async (mapObject, entityMappingId, updatedContext) => {
     let obj = {};
     Object.keys(mapObject).forEach(key => {
-      convertMapExpToMapArt(obj, key, {"sourcedFrom": mapObject[key]});
+        convertMapExpToMapArt(obj, key, {"sourcedFrom": mapObject[key]});
     });
     await getTgtEntityTypesInMap(obj);
     let {lastUpdated, properties, ...dataPayload} = mapData;
-
-    dataPayload = {...dataPayload, properties: obj};
-
+    if(entityMappingId && dataPayload.relatedEntityMappings) {
+      //when saveMapping is called by related entities, parse payload to make update inside the proper index of the relatedEntityMappings array 
+      let updateRelatedMappings : any = JSON.parse(JSON.stringify(dataPayload.relatedEntityMappings)); //make deep copy of related mappings to update without triggering useEffects
+      let indexToUpdate = updateRelatedMappings.findIndex(entity => entity["relatedEntityMappingId"] === entityMappingId);
+      updateRelatedMappings[indexToUpdate].properties = obj;
+      updateRelatedMappings[indexToUpdate].expressionContext = updatedContext;
+      dataPayload = {...dataPayload, relatedEntityMappings: updateRelatedMappings}
+    }else {
+      dataPayload = {...dataPayload, properties: obj};
+    }
     let mapSavedResult = await updateMappingArtifact(dataPayload);
-    tempSourceContext = {};
-    updateSourceContext(mapObject, entityTypeProperties);
-    setSourceContext({...tempSourceContext});
     if (mapSavedResult) {
       setErrorInSaving("noError");
     } else {
@@ -1427,11 +1429,8 @@ const MappingStepDetail: React.FC = () => {
                 setMapResp={setMapResp}
                 mapExpTouched={mapExpTouched}
                 setMapExpTouched={setMapExpTouched}
-                handleExpSubmit={handleExpSubmit}
                 flatArray={flatArray}
                 saveMapping={saveMapping}
-                sourceContext={sourceContext}
-                setSourceContext={setSourceContext}
                 dummyNode={dummyNode}
                 getDataForValueField={getDataForValueField}
                 getTextForTooltip={getTextForTooltip}
@@ -1468,11 +1467,8 @@ const MappingStepDetail: React.FC = () => {
                   setMapResp={setMapResp}
                   mapExpTouched={mapExpTouched}
                   setMapExpTouched={setMapExpTouched}
-                  handleExpSubmit={handleExpSubmit}
                   flatArray={flatArray}
                   saveMapping={saveMapping}
-                  sourceContext={sourceContext}
-                  setSourceContext={setSourceContext}
                   dummyNode={dummyNode}
                   getDataForValueField={getDataForValueField}
                   getTextForTooltip={getTextForTooltip}
